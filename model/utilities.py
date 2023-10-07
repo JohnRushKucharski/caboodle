@@ -114,13 +114,14 @@ class ReimannMethod(Enum):
     MIDPOINT = 2
     TRAPEZOID = 3
 
-def reimann_fx(fx: Callable[[Tuple[float, float]], float], #pylint: disable=invalid-name
-               method: ReimannMethod = ReimannMethod.TRAPEZOID, n: int = 1) -> float: #pylint: disable=invalid-name
+def reimann_fx(fx: Callable[[float], float], #pylint: disable=invalid-name
+               method: ReimannMethod = ReimannMethod.TRAPEZOID,
+               n: int = 1) -> Callable[[Tuple[float, float]], float]: #pylint: disable=invalid-name
     '''
     Closure for reimann sum function.
     
     Arguments:
-        fx: Callable[[Tuple[float, float]], float] ~ function to integrate
+        fx: Callable[[float], float] ~ function to integrate
         method: ReimannMethod ~ reimann sum method
         n: int ~ number of subintervals
     

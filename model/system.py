@@ -1,14 +1,14 @@
 '''A system of nodes and edges describing a water resources system.'''
 from typing import Set, List
 
-from model.node import DataNode, Node, Tag
+from model.data import REGISTRY
+from model.node import Node, Tag
 
 class System:
     '''A system of nodes and edges describing a water resources system.'''
     def __init__(self, nodes: List[Node], log_directory: str) -> None:
-        self.nodes = [
-            DataNode(node=node, logpath=f'{log_directory}/{node.name}.csv')
-            for node in format_node_names(nodes)]
+        self.nodes = nodes
+        self.data_path = log_directory
 
     def outlet(self) -> Node:
         '''Finds the outlet node.
@@ -19,13 +19,17 @@ class System:
         Returns:
             Node: The outlet node.
         '''
-        outlets = (node for node in self.nodes if node.tag == Tag.OUTLET)
+        outlets = tuple(node for node in self.nodes if node.tag == Tag.OUTLET)
         if len(outlets) != 1:
             raise NotImplementedError('Only one outlet is supported.')
         return outlets[0]
 
     def simulate(self, time_periods: int = 1) -> None:
         '''Simulate the system.'''
+        for _ in range(time_periods):
+            self.step_forward()
+        for k, v in REGISTRY.items():
+            v.flush(csv_path=f'{self.data_path}/{k}.csv')
 
     def step_forward(self) -> None:
         '''Step the system forward one time period.'''
@@ -34,7 +38,7 @@ class System:
 def format_node_names(nodes: List[Node]) -> Set[Node]:
     '''Create unique names for nodes.'''
     names = []
-    output = Set()
+    output = set()
     for node in nodes:
         i: int = 1
         name = node.name
